@@ -38,7 +38,7 @@ def make_model():
     return model
 
 
-def test_model(dataX: numpy.ndarray, dataY: numpy.ndarray, folds: int, epoch: int) -> None: 
+def test_model(dataX: numpy.ndarray, dataY: numpy.ndarray, folds: int, epoch: int, batch: int) -> None: 
 
     accuracies, histories = list(), list()
     kfold = KFold(folds, shuffle=True, random_state=1)
@@ -56,7 +56,7 @@ def test_model(dataX: numpy.ndarray, dataY: numpy.ndarray, folds: int, epoch: in
         testX = dataX[test_ix]
         testY = dataY[test_ix]
 
-        history = model.fit(trainX, trainY, epochs=epoch, batch_size=32, validation_data=(testX, testY), verbose=1)
+        history = model.fit(trainX, trainY, epochs=epoch, batch_size=batch, validation_data=(testX, testY), verbose=1)
 
         loss, accuracy = model.evaluate(testX, testY, verbose=1)
         accuracies.append(accuracy)
@@ -93,13 +93,91 @@ def test_model(dataX: numpy.ndarray, dataY: numpy.ndarray, folds: int, epoch: in
 
 
 
-def output_model(epoch: int) -> None:
+
+def testing_harness() -> None:
+    trainX, trainY, testX, testY = load_mnist_data()
+    
+    inp_fold = 0
+
+    while (True):
+        try:
+            inp_fold = int(input("Enter the number of folds for k-fold cross validation: "))
+        except:
+            print("Invalid input! Try again.")
+        else:
+            if (inp_fold > 0):
+                break
+            else:
+                print("Fold number cannot be less than 1!")
+
+    epoch = 0
+
+    while (True):
+        try:
+            epoch = int(input("Enter the number of epochs to train the data for: "))
+        except:
+            print("Invalid input! Try again.")
+        else:
+            if (epoch > 0):
+                break
+            else:
+                print("Epoch number cannot be less than 1!")
+
+    
+    batch = 0
+
+    while (True):
+        try:
+            batch = int(input("Enter the batch size: "))
+        except:
+            print("Invalid input! Try again.")
+        else:
+            if (batch > 0):
+                break
+            else:
+                print("Batch size cannot be less than 1!")
+
+    
+    test_model(trainX, trainY, inp_fold, epoch, batch)
+
+
+
+def output_model() -> None:
+
+    epoch = 0
+
+    while (True):
+        try:
+            epoch = int(input("Enter the number of epochs to train the data for: "))
+        except:
+            print("Invalid input! Try again.")
+        else:
+            if (epoch > 0):
+                break
+            else:
+                print("Epoch number cannot be less than 1!")
+
+    
+    batch = 0
+
+    while (True):
+        try:
+            batch = int(input("Enter the batch size: "))
+        except:
+            print("Invalid input! Try again.")
+        else:
+            if (batch > 0):
+                break
+            else:
+                print("Batch size cannot be less than 1!")
+
+
 
     trainX, trainY, testX, testY = load_mnist_data()
     model = make_model()
 
     print("Training model")
-    model.fit(trainX, trainY, epochs=epoch, batch_size=32, verbose=1)
+    model.fit(trainX, trainY, epochs=epoch, batch_size=batch, verbose=1)
 
     print("Testing model")
     loss, accuracy = model.evaluate(testX, testY, verbose=1)
@@ -107,4 +185,23 @@ def output_model(epoch: int) -> None:
     print("Model tested with an accuracy of %.3f and loss of %.3f. Exporting model." % (accuracy, loss))
     model.save("MNIST_model.h5")
 
-output_model(10)
+
+def main() -> None:
+
+    y_n = ""
+
+    while (True):
+        y_n = str(input("Enter Y for testing harness, or N to train and export final model: "))
+
+        if (y_n in ("Y", "y")):
+            testing_harness()
+        
+        elif (y_n in ("N", "n")):
+            output_model()
+            break
+
+        else:
+            print("Invalid output! Try again")
+
+
+main()
